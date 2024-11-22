@@ -17,11 +17,11 @@ A Single Page Application (SPA) for managing an address book. Built using Vue 3,
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/lumdukaj/address-book.git
    ```
 2. Navigate to the project directory:
    ```bash
-   cd <repository-folder>
+   cd address-book
    ```
 3. Install dependencies:
    ```bash
