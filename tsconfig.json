@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".", // Required for path mapping
+    "paths": {
+      "@/*": ["src/*"] // Map @/ to the src folder
+    },
+    "types": ["node"], // Include Node.js types if needed
+    "moduleResolution": "node", // Ensure TypeScript resolves Node modules
+    "esModuleInterop": true, // For compatibility with ES modules
+    "strict": true // Enforce type safety (optional but recommended)
+  },
+  "include": ["src"], // Include the src folder in the compilation
+  "exclude": ["node_modules"] // Exclude node_modules
+}

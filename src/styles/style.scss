@@ -1,0 +1,9 @@
+@use "global";
+
+body {
+	font-family: "Hanken Grotesk", sans-serif !important;
+
+	* {
+		font-family: inherit !important;
+	}
+}
