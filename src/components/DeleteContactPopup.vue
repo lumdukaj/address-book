@@ -21,50 +21,38 @@
 	</div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType, computed } from "vue";
+<script setup lang="ts">
+import { defineEmits, defineProps, computed } from "vue";
 import { Contact } from "@/types/Contact";
 
-export default defineComponent({
-	name: "DeleteContactPopup",
-	props: {
-		contact: {
-			type: Object as PropType<Contact | null>,
-			required: false,
-		},
-		errorMessage: {
-			type: String,
-			default: "An error has occurred, please try again",
-			required: false,
-		},
-		showError: {
-			type: Boolean,
-			default: false,
-		},
-	},
+const props = defineProps<{
+	contact: Contact | null;
+	errorMessage: string;
+	showError: boolean;
+}>();
 
-	setup(props) {
-		const displayMessage = computed(() => {
-			return props.errorMessage.trim() || "An error has occurred, please try again";
-		});
+const emit = defineEmits<{
+	(event: "confirm"): void;
+	(event: "cancel"): void;
+	(event: "update:errorMessage", errorMessage: string): void;
+	(event: "update:showError", showError: boolean): void;
+}>();
 
-		return { displayMessage };
-	},
-	emits: ["confirm", "cancel", "update:errorMessage", "update:showError"],
-	methods: {
-		confirmDelete() {
-			this.$emit("confirm");
-		},
-		cancelDelete() {
-			this.$emit("cancel");
-			this.resetErrorMessage();
-		},
-		resetErrorMessage() {
-			this.$emit("update:errorMessage", "");
-			this.$emit("update:showError", false);
-		},
-	},
+const displayMessage = computed(() => {
+	return props.errorMessage.trim() || "An error has occurred, please try again";
 });
+
+const confirmDelete = () => emit("confirm");
+
+const cancelDelete = () => {
+	emit("cancel");
+	resetErrorMessage();
+};
+
+const resetErrorMessage = () => {
+	emit("update:errorMessage", "");
+	emit("update:showError", false);
+};
 </script>
 
 <style scoped lang="scss">

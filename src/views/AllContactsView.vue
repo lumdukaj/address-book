@@ -15,33 +15,26 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { defineComponent, ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { Contact } from "@/types/Contact";
 import ContactTemplate from "@/components/ContactTemplate.vue";
 
-export default defineComponent({
-	name: "AllContactsView",
-	components: { ContactTemplate },
-	setup() {
-		const router = useRouter();
-		const contacts = ref<Contact[]>([]);
+const router = useRouter();
 
-		onMounted(() => {
-			const savedContacts = localStorage.getItem("contacts");
-			if (savedContacts) {
-				contacts.value = JSON.parse(savedContacts);
-			}
-		});
+const contacts = ref<Contact[]>([]);
 
-		const redirectToAdd = () => {
-			router.push("/add-contact");
-		};
-
-		return { contacts, redirectToAdd };
-	},
+onMounted(() => {
+	const savedContacts = localStorage.getItem("contacts");
+	if (savedContacts) {
+		contacts.value = JSON.parse(savedContacts);
+	}
 });
+
+const redirectToAdd = () => {
+	router.push("/add-contact");
+};
 </script>
 
 <style lang="scss">

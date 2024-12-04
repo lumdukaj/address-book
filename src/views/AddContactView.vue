@@ -32,44 +32,37 @@
 	</div>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, reactive } from "vue";
+<script setup lang="ts">
+import { computed, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { getNames } from "country-list";
 import { Contact } from "@/types/Contact";
 
-export default defineComponent({
-	name: "AddContactView",
-	setup() {
-		const router = useRouter();
-		const countries = getNames();
-		countries.push("Kosovo");
-		// Names are not sorted by default
-		countries.sort();
+const router = useRouter();
 
-		const contact = reactive<Contact>({
-			id: Date.now(),
-			firstName: "",
-			lastName: "",
-			email: "",
-			country: "",
-		});
+const countries = getNames();
+countries.push("Kosovo");
+countries.sort();
 
-		const isValid = computed(() => {
-			return !(Object.keys(contact) as (keyof typeof contact)[]).some((key) => !contact[key]);
-		});
-
-		const handleSubmit = () => {
-			const savedContacts = localStorage.getItem("contacts");
-			const contacts = savedContacts ? JSON.parse(savedContacts) : [];
-			contacts.unshift({ ...contact, id: Date.now() });
-			localStorage.setItem("contacts", JSON.stringify(contacts));
-			router.push("/");
-		};
-
-		return { contact, countries, isValid, handleSubmit };
-	},
+const contact = reactive<Contact>({
+	id: Date.now(),
+	firstName: "",
+	lastName: "",
+	email: "",
+	country: "",
 });
+
+const isValid = computed(() => {
+	return !(Object.keys(contact) as (keyof typeof contact)[]).some((key) => !contact[key]);
+});
+
+const handleSubmit = () => {
+	const savedContacts = localStorage.getItem("contacts");
+	const contacts = savedContacts ? JSON.parse(savedContacts) : [];
+	contacts.unshift({ ...contact, id: Date.now() });
+	localStorage.setItem("contacts", JSON.stringify(contacts));
+	router.push("/");
+};
 </script>
 
 <style lang="scss" scoped>

@@ -41,81 +41,72 @@
 	</div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType, ref, computed } from "vue";
+<script setup lang="ts">
+import { defineEmits, defineProps, ref, computed } from "vue";
 import { Contact } from "@/types/Contact";
 import { getNames } from "country-list";
 
-export default defineComponent({
-	name: "EditContactPopup",
-	props: {
-		contact: {
-			type: Object as PropType<Contact | null>,
-			required: false,
-		},
-		errorMessage: {
-			type: String,
-			default: "An error has occurred, please try again",
-		},
-		showError: {
-			type: Boolean,
-			default: false,
-		},
-	},
-	emits: ["confirm", "cancel", "update:errorMessage", "update:showError"],
-	setup(props) {
-		const countries = getNames();
-		countries.push("Kosovo");
-		countries.sort();
+const props = defineProps<{
+	contact: Contact | null;
+	errorMessage: string;
+	showError: boolean;
+}>();
 
-		const editedContact = ref<Contact>(
-			props.contact
-				? { ...props.contact }
-				: {
-						id: 0,
-						firstName: "",
-						lastName: "",
-						email: "",
-						country: "",
-					}
-		);
+const emit = defineEmits<{
+	(event: "confirm", contact: Contact): void;
+	(event: "cancel"): void;
+	(event: "update:errorMessage", errorMessage: string): void;
+	(event: "update:showError", showError: boolean): void;
+}>();
 
-		// Save button is enabled when changes are made
-		const isModified = computed(() => {
-			if (!props.contact || !editedContact.value) {
-				return false;
+const countries = getNames();
+countries.push("Kosovo");
+countries.sort();
+
+const editedContact = ref<Contact>(
+	props.contact
+		? { ...props.contact }
+		: {
+				id: 0,
+				firstName: "",
+				lastName: "",
+				email: "",
+				country: "",
 			}
+);
 
-			return (
-				props.contact.firstName !== editedContact.value.firstName ||
-				props.contact.lastName !== editedContact.value.lastName ||
-				props.contact.email !== editedContact.value.email ||
-				props.contact.country !== editedContact.value.country
-			);
-		});
+const isModified = computed(() => {
+	if (!props.contact || !editedContact.value) {
+		return false;
+	}
 
-		const displayMessage = computed(() => {
-			return props.errorMessage.trim() || "An error has occurred, please try again";
-		});
-
-		return { displayMessage, countries, editedContact, isModified };
-	},
-	methods: {
-		confirmEdit() {
-			if (this.editedContact) {
-				this.$emit("confirm", this.editedContact);
-			}
-		},
-		cancelEdit() {
-			this.$emit("cancel");
-			this.resetErrorMessage();
-		},
-		resetErrorMessage() {
-			this.$emit("update:errorMessage", "");
-			this.$emit("update:showError", false);
-		},
-	},
+	return (
+		props.contact.firstName !== editedContact.value.firstName ||
+		props.contact.lastName !== editedContact.value.lastName ||
+		props.contact.email !== editedContact.value.email ||
+		props.contact.country !== editedContact.value.country
+	);
 });
+
+const displayMessage = computed(() => {
+	return props.errorMessage.trim() || "An error has occurred, please try again";
+});
+
+const confirmEdit = () => {
+	if (editedContact.value) {
+		emit("confirm", editedContact.value);
+	}
+};
+
+const cancelEdit = () => {
+	emit("cancel");
+	resetErrorMessage();
+};
+
+const resetErrorMessage = () => {
+	emit("update:errorMessage", "");
+	emit("update:showError", false);
+};
 </script>
 
 <style scoped lang="scss">

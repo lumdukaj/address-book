@@ -12,32 +12,23 @@
 	</div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "vue";
+<script setup lang="ts">
+import { defineProps, defineEmits } from "vue";
 import { Contact } from "@/types/Contact";
 
-export default defineComponent({
-	name: "ContactTemplate",
-	props: {
-		contact: {
-			type: Object as PropType<Contact>,
-			required: true,
-		},
-		showActions: {
-			type: Boolean,
-			default: false,
-		},
-	},
-	emits: ["edit", "delete"],
-	methods: {
-		editContact() {
-			this.$emit("edit", this.contact);
-		},
-		deleteContact() {
-			this.$emit("delete", this.contact);
-		},
-	},
-});
+const props = defineProps<{
+	contact: Contact;
+	showActions: boolean;
+}>();
+
+const emit = defineEmits<{
+	(event: "edit", contact: Contact): void;
+	(event: "delete", contact: Contact): void;
+}>();
+
+const editContact = () => emit("edit", props.contact);
+
+const deleteContact = () => emit("delete", props.contact);
 </script>
 
 <style lang="scss" scoped>

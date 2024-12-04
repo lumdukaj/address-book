@@ -39,7 +39,7 @@
 	</div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { defineComponent, ref } from "vue";
 import { useRouter } from "vue-router";
 import { Contact } from "@/types/Contact";
@@ -47,99 +47,72 @@ import DeleteContactPopup from "@/components/DeleteContactPopup.vue";
 import EditContactPopup from "@/components/EditContactPopup.vue";
 import ContactTemplate from "@/components/ContactTemplate.vue";
 
-export default defineComponent({
-	name: "ManageContactsView",
-	components: {
-		DeleteContactPopup,
-		EditContactPopup,
-		ContactTemplate,
-	},
+const router = useRouter();
+const contacts = ref<Contact[]>(JSON.parse(localStorage.getItem("contacts") || "[]"));
+const selectedContact = ref<Contact | null>(null);
+const isDeletePopupVisible = ref(false);
+const isEditPopupVisible = ref(false);
+const popupErrorMessage = ref<string>("");
+const showPopupError = ref<boolean>(false);
 
-	setup() {
-		const router = useRouter();
-		const contacts = ref<Contact[]>(JSON.parse(localStorage.getItem("contacts") || "[]"));
-		const selectedContact = ref<Contact | null>(null);
-		const isDeletePopupVisible = ref(false);
-		const isEditPopupVisible = ref(false);
-		const popupErrorMessage = ref<string>("");
-		const showPopupError = ref<boolean>(false);
+const showPopup = (contact: Contact | null, type: string) => {
+	selectedContact.value = contact;
+	if (type === "delete") {
+		isDeletePopupVisible.value = true;
+	} else if (type === "edit") {
+		isEditPopupVisible.value = true;
+	}
+};
 
-		const showPopup = (contact: Contact | null, type: string) => {
-			selectedContact.value = contact;
-			if (type === "delete") {
-				isDeletePopupVisible.value = true;
-			} else if (type === "edit") {
-				isEditPopupVisible.value = true;
-			}
-		};
+const closePopup = (type: string) => {
+	selectedContact.value = null;
+	if (type === "delete") {
+		isDeletePopupVisible.value = false;
+	} else if (type === "edit") {
+		isEditPopupVisible.value = false;
+	}
+};
 
-		const closePopup = (type: string) => {
-			selectedContact.value = null;
-			if (type === "delete") {
-				isDeletePopupVisible.value = false;
-			} else if (type === "edit") {
-				isEditPopupVisible.value = false;
-			}
-		};
+const confirmDelete = () => {
+	try {
+		if (!selectedContact.value) {
+			throw new Error("No contact selected.");
+		}
 
-		const confirmDelete = () => {
-			try {
-				if (!selectedContact.value) {
-					throw new Error("No contact selected.");
-				}
+		contacts.value = contacts.value.filter((contact) => contact.id !== selectedContact.value?.id);
+		localStorage.setItem("contacts", JSON.stringify(contacts.value));
 
-				contacts.value = contacts.value.filter(
-					(contact) => contact.id !== selectedContact.value?.id
-				);
-				localStorage.setItem("contacts", JSON.stringify(contacts.value));
+		closePopup("delete");
+	} catch (error) {
+		popupErrorMessage.value =
+			"An error occurred while trying to delete the contact. Please try again.";
+		showPopupError.value = true;
+	}
+};
 
-				closePopup("delete");
-			} catch (error) {
-				popupErrorMessage.value =
-					"An error occurred while trying to delete the contact. Please try again.";
-				showPopupError.value = true;
-			}
-		};
+const confirmEdit = (updatedContact: Contact) => {
+	try {
+		if (!selectedContact.value) {
+			throw new Error("No contact selected.");
+		}
 
-		const confirmEdit = (updatedContact: Contact) => {
-			try {
-				if (!selectedContact.value) {
-					throw new Error("No contact selected.");
-				}
+		const index = contacts.value.findIndex((c) => c.id === updatedContact.id);
+		if (index !== -1) {
+			contacts.value[index] = updatedContact;
+			localStorage.setItem("contacts", JSON.stringify(contacts.value));
+		}
 
-				const index = contacts.value.findIndex((c) => c.id === updatedContact.id);
-				if (index !== -1) {
-					contacts.value[index] = updatedContact;
-					localStorage.setItem("contacts", JSON.stringify(contacts.value));
-				}
+		closePopup("edit");
+	} catch (error) {
+		popupErrorMessage.value =
+			"An error occurred while trying to edit the contact. Please try again.";
+		showPopupError.value = true;
+	}
+};
 
-				closePopup("edit");
-			} catch (error) {
-				popupErrorMessage.value =
-					"An error occurred while trying to edit the contact. Please try again.";
-				showPopupError.value = true;
-			}
-		};
-
-		const redirectToAdd = () => {
-			router.push("/add-contact");
-		};
-
-		return {
-			contacts,
-			isDeletePopupVisible,
-			isEditPopupVisible,
-			selectedContact,
-			popupErrorMessage,
-			showPopupError,
-			confirmDelete,
-			confirmEdit,
-			showPopup,
-			closePopup,
-			redirectToAdd,
-		};
-	},
-});
+const redirectToAdd = () => {
+	router.push("/add-contact");
+};
 </script>
 
 <style scoped lang="scss">
